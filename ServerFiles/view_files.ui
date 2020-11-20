@@ -1,0 +1,390 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1134</width>
+    <height>619</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <widget class="QFrame" name="frame_9">
+    <property name="geometry">
+     <rect>
+      <x>170</x>
+      <y>30</y>
+      <width>1053</width>
+      <height>573</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Segoe UI Light</family>
+      <pointsize>17</pointsize>
+     </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: rgb(0, 0, 61);
+border-radius: 40px;</string>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::StyledPanel</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Raised</enum>
+    </property>
+    <widget class="QLabel" name="file_index_in_files">
+     <property name="geometry">
+      <rect>
+       <x>350</x>
+       <y>530</y>
+       <width>141</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>Segoe UI Light</family>
+       <pointsize>16</pointsize>
+      </font>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">color: rgb(0, 223, 223);</string>
+     </property>
+     <property name="text">
+      <string>Page 1 out of 1</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="next_page_button_files">
+     <property name="geometry">
+      <rect>
+       <x>490</x>
+       <y>530</y>
+       <width>121</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>Segoe UI Light</family>
+       <pointsize>18</pointsize>
+      </font>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">QPushButton{
+	background-color:rgb(0, 0, 117);
+	color: rgb(0, 223, 223);
+	border-radius: 5px;
+}
+QPushButton:hover{
+	border: 3px solid rgb(0, 0, 217);
+}</string>
+     </property>
+     <property name="text">
+      <string>Next Page</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="no_files_yet_label">
+     <property name="geometry">
+      <rect>
+       <x>320</x>
+       <y>260</y>
+       <width>431</width>
+       <height>81</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>Segoe UI Light</family>
+       <pointsize>20</pointsize>
+      </font>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">color: rgb(0, 223, 223);</string>
+     </property>
+     <property name="text">
+      <string>You currently have no files saved!</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="example_files">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>20</y>
+       <width>481</width>
+       <height>81</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>Segoe UI Light</family>
+       <pointsize>20</pointsize>
+      </font>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">color: rgb(0, 223, 223);</string>
+     </property>
+     <property name="text">
+      <string>1. Dumay.txt || Size: 0.75MB</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="back_button_4">
+     <property name="geometry">
+      <rect>
+       <x>520</x>
+       <y>40</y>
+       <width>151</width>
+       <height>41</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>Segoe UI Light</family>
+       <pointsize>20</pointsize>
+       <weight>50</weight>
+       <bold>false</bold>
+      </font>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">QPushButton{
+	background-color:rgb(0, 0, 98);
+	color: rgb(0, 223, 223);
+	border-radius: 10px;
+}
+QPushButton:hover{
+	border: 2px solid rgb(0, 0, 217);
+}</string>
+     </property>
+     <property name="text">
+      <string>Download</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="back_button_5">
+     <property name="geometry">
+      <rect>
+       <x>700</x>
+       <y>40</y>
+       <width>151</width>
+       <height>41</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>Segoe UI Light</family>
+       <pointsize>20</pointsize>
+       <weight>50</weight>
+       <bold>false</bold>
+      </font>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">QPushButton{
+	background-color:rgb(0, 0, 98);
+	color: rgb(0, 223, 223);
+	border-radius: 10px;
+}
+QPushButton:hover{
+	border: 2px solid rgb(0, 0, 217);
+}</string>
+     </property>
+     <property name="text">
+      <string>Share</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="back_button_6">
+     <property name="geometry">
+      <rect>
+       <x>870</x>
+       <y>40</y>
+       <width>151</width>
+       <height>41</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>Segoe UI Light</family>
+       <pointsize>20</pointsize>
+       <weight>50</weight>
+       <bold>false</bold>
+      </font>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">QPushButton{
+	background-color:rgb(0, 0, 98);
+	color: rgb(0, 223, 223);
+	border-radius: 10px;
+}
+QPushButton:hover{
+	border: 2px solid rgb(0, 0, 217);
+}</string>
+     </property>
+     <property name="text">
+      <string>Delete</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="example_files_2">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>100</y>
+       <width>481</width>
+       <height>81</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>Segoe UI Light</family>
+       <pointsize>20</pointsize>
+      </font>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">color: rgb(0, 223, 223);</string>
+     </property>
+     <property name="text">
+      <string>2. firstfiles.zip || Size: 17.64MB</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="back_button_7">
+     <property name="geometry">
+      <rect>
+       <x>520</x>
+       <y>120</y>
+       <width>151</width>
+       <height>41</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>Segoe UI Light</family>
+       <pointsize>20</pointsize>
+       <weight>50</weight>
+       <bold>false</bold>
+      </font>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">QPushButton{
+	background-color:rgb(0, 0, 98);
+	color: rgb(0, 223, 223);
+	border-radius: 10px;
+}
+QPushButton:hover{
+	border: 2px solid rgb(0, 0, 217);
+}</string>
+     </property>
+     <property name="text">
+      <string>Download</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="back_button_8">
+     <property name="geometry">
+      <rect>
+       <x>700</x>
+       <y>120</y>
+       <width>151</width>
+       <height>41</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>Segoe UI Light</family>
+       <pointsize>20</pointsize>
+       <weight>50</weight>
+       <bold>false</bold>
+      </font>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">QPushButton{
+	background-color:rgb(0, 0, 98);
+	color: rgb(0, 223, 223);
+	border-radius: 10px;
+}
+QPushButton:hover{
+	border: 2px solid rgb(0, 0, 217);
+}</string>
+     </property>
+     <property name="text">
+      <string>Share</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="back_button_9">
+     <property name="geometry">
+      <rect>
+       <x>870</x>
+       <y>120</y>
+       <width>151</width>
+       <height>41</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>Segoe UI Light</family>
+       <pointsize>20</pointsize>
+       <weight>50</weight>
+       <bold>false</bold>
+      </font>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">QPushButton{
+	background-color:rgb(0, 0, 98);
+	color: rgb(0, 223, 223);
+	border-radius: 10px;
+}
+QPushButton:hover{
+	border: 2px solid rgb(0, 0, 217);
+}</string>
+     </property>
+     <property name="text">
+      <string>Delete</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="reload_button">
+     <property name="geometry">
+      <rect>
+       <x>620</x>
+       <y>530</y>
+       <width>131</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>Segoe UI Light</family>
+       <pointsize>18</pointsize>
+      </font>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">QPushButton{
+	background-color:rgb(0, 0, 117);
+	color: rgb(0, 223, 223);
+	border-radius: 5px;
+}
+QPushButton:hover{
+	border: 3px solid rgb(0, 0, 217);
+}</string>
+     </property>
+     <property name="text">
+      <string>Reload ↻</string>
+     </property>
+    </widget>
+   </widget>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>1134</width>
+     <height>21</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
