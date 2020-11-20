@@ -1,8 +1,8 @@
 # DumayCloud
 Application to backup your files in a secure server encrypted with AES128 with a GUI and an API.
 
-### API Usage
-Firstly, import the client module and create a client object like this:
+## API Usage
+Firstly, import the DumayCloud module and create a client object like this:
 ```py
 import DumayCloud
 c = DumayCloud.Client()
@@ -82,7 +82,7 @@ c.linuxCmd("mv *.png catPhotos/")
 ```
 ----
 
-### GUI Usage
+## GUI Usage
 To open the GUI version, run the controller.py module.
 ## After opening it, you should see this image:
 
