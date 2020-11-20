@@ -1,5 +1,5 @@
 # DumayCloud
-Application to backup your files in a secure server encrypted with AES128 with a <a href="#GUI Usage">GUI</a> and an API.
+Application to backup your files in a secure server encrypted with AES128 with a GUI and an API.
 
 ## API Usage
 Firstly, import the DumayCloud module and create a client object like this:
