@@ -5,12 +5,32 @@ import pickle
 from cryptography.fernet import Fernet, InvalidToken
 import re
 import os
-from color import Color
-from yapf.yapflib.yapf_api import FormatFile
 
 IP = "127.0.0.1"
 PORT = 6969
 ADDR = (IP, PORT)
+
+
+
+class Color(object):
+    def __init__(self):
+        self.PURPLE = '\033[1;35;48m'
+        self.CYAN = '\033[1;36;48m'
+        self.BOLD = '\033[1;37;48m'
+        self.BLUE = '\033[1;34;48m'
+        self.GREEN = '\033[1;32;48m'
+        self.YELLOW = '\033[1;33;48m'
+        self.RED = '\033[1;31;48m'
+        self.BLACK = '\033[1;30;48m'
+        self.UNDERLINE = '\033[4;37;48m'
+        self.END = '\033[1;37;0m'
+
+    def red(self, string):
+        return f"{self.RED}{string}{self.END}"
+
+    def green(self, string):
+        return f"{self.GREEN}{string}{self.END}"
+
 
 color = Color()
 
@@ -47,16 +67,19 @@ def email_exists(email):
     return False
 
 
-def create_client_obj(client, key):
-    client_obj = ClientProtocols()
-    client_obj.init_client(client, key)
+def new_client(client, key):
+    Client(client, key)
+
+
+def end_thread(thread):
+    thread.join()
 
 
 class Server(object):
     def __init__(self):
         self.server = socket.socket()
         self.server.bind(ADDR)
-        self.server.listen(5)
+        self.server.listen()
         print("[+] Server Listening")
 
     def accept_conns(self):
@@ -66,67 +89,61 @@ class Server(object):
             client.send(key)
             key = Fernet(key)
             print("client connected")
-            Thread(target=create_client_obj, args=(client, key)).start()
+            client_thread = Thread(target=new_client, args=(client, key))
+            client_thread.start()
 
 
-
-class ClientProtocols(object):
-    def __init__(self):
-        self.key, self.client, self.HEADERS = None, None, None
-        self.username: str = ''
-        self.opened_file: str = ''
-
-    def init_client(self, client: socket.socket, key: Fernet):
-        self.key: Fernet = key
-        self.client: socket.socket = client
-        self.HEADERS: dict = {
+class Client(object):
+    def __init__(self, client: socket.socket, key: Fernet):
+        self.__client = client
+        self.__key = key
+        self.__username: (str, None) = None
+        self.__password: (str, None) = None
+        self.__HEADERS: dict = {
             b"login": self.login,
             b"sign_up": self.sign_up,
-            b"file": self.upload_file,
-            b"delete_user": self.delete_user
+            b"delete_user": self.delete_user,
+            b"get_files": self.get_files
         }
-        self.await_client_cmd()
+        self.recieve_header()
 
-    def await_client_cmd(self):
+    def recieve_header(self):
         while True:
             try:
-                header: bytes = self.client.recv(2048)
-                if header:
-                    header = self.key.decrypt(header)
-                    print(header)
-                else:
+                header = self.__client.recv(4096)
+                try:
+                    self.__HEADERS[self.__key.decrypt(header)]()
+                except (InvalidToken, KeyError):
+                    # when a client disconnects, empty bytes are being sent. This checks if the header is not of length zero.
+                    if not header:
+                        self.__client.close()
+                        print(f"client \"{self.__username}\" was closed")
+                        break
                     continue
-                if header.startswith(b"endfile"):
-
-
-
-                self.HEADERS[header]() if header.split()[0] != b"file" else self.upload_file(header)
-                print(f"HEADER IS {header}")
-            except (InvalidToken, KeyError, ConnectionResetError, TypeError):
-                continue
-
+            except ConnectionResetError:
+                break
 
     def login(self):
         try:
-            user_data: dict = pickle.loads(self.key.decrypt(self.client.recv(2048)))
+            user_data: dict = pickle.loads(self.__key.decrypt(self.__client.recv(2048)))
             with open("users.json") as f:
                 users = json.load(f)
             if user_exists(user_data['username']):
                 if users[user_data["username"]]["password"] == user_data["password"]:
-                    self.client.send(self.key.encrypt(pickle.dumps(True)))
-                    self.username = user_data['username']
+                    self.__client.send(self.__key.encrypt(pickle.dumps(True)))
+                    self.__username = user_data['username']
+                    self.__password = user_data['password']
                     print(color.green(f"Client: {user_data['username']} connected!"))
                 else:
-                    self.client.send(self.key.encrypt(pickle.dumps(False)))
+                    self.__client.send(self.__key.encrypt(pickle.dumps(False)))
             else:
-                self.client.send(self.key.encrypt(pickle.dumps(False)))
+                self.__client.send(self.__key.encrypt(pickle.dumps(False)))
         except ConnectionResetError:
             print("Someone Left...")
 
-
     def sign_up(self):
-        client = self.client
-        key = self.key
+        client = self.__client
+        key = self.__key
         try:
             user_data = pickle.loads(key.decrypt(client.recv(2048)))
             if not user_exists(user_data["username"]):
@@ -141,120 +158,82 @@ class ClientProtocols(object):
         except Exception or IndexError:
             client.send(key.encrypt(pickle.dumps(False)))
 
-    def upload_file1(self):
-        """"{username: null, file_name: null}"""
-        try:
-            user_data = pickle.loads(self.key.decrypt(self.client.recv(2048)))
-            print(color.green(f"client {user_data['username']} is trying to send {user_data['file_name']}"))
-            with open(f"{user_data['username']}\\{user_data['file_name']}", "wb") as f:
-                while True:
-                    file_data = self.client.recv(4096).decode().encode()
-                    if file_data:
-                        file_data = self.key.decrypt(file_data)
-                    else:
-                        print(color.red(f"continuing with: {file_data}"))
-                        continue
-                    if file_data != b"endfile":
-                        print(f'receiving data from {user_data["username"]}')
-                        f.write(file_data)
-                    else:
-                        print("break")
-                        break
-
-        except Exception as e:
-            print(e)
-
-
-    def upload_file(self, header: bytes):
-        print("here")
-        header = header.decode().split()
-        with open(f"{self.username}\\{header[1]}", mode="a+", newline="\r\n") as file:
-            print("Recieved a file")
-            self.opened_file = header[1]
-            file.write(" ".join(header[2:]))
-
-
-    def end_file(self):
-        if self.opened_file:
-
-
-
-
     def delete_user(self):
         with open("users.json") as f:
             users = json.load(f)
-        user_data = pickle.loads(self.key.decrypt(self.client.recv(2048)))
+        user_data = pickle.loads(self.__key.decrypt(self.__client.recv(2048)))
         if users[user_data["username"]]["password"] == user_data["password"]:
             users.pop(user_data["username"].encode().decode())
             with open("users.json", "w") as fw:
                 json.dump(users, fw, indent=4)
 
-
-#
-#
-# def sign_up(self, client, key):
-#     self.null = 5
-#     try:
-#         user_data = pickle.loads(key.decrypt(client.recv(2048)))
-#         if not check_exists(user_data["username"]):
-#             if len(user_data["username"]) > 4 and valid_email(user_data["email"]) and not email_exists(
-#                     user_data["email"]):
-#                 add_user(user_data["username"], user_data["email"], user_data["password"])
-#                 client.send(key.encrypt(pickle.dumps(True)))
-#             else:
-#                 raise IndexError
-#         else:
-#             raise IndexError
-#     except Exception or IndexError:
-#         client.send(key.encrypt(pickle.dumps(False)))
-#
-#
-# def delete_user(self, client, key):
-#     self.null = 5
-#     with open("users.json") as f:
-#         users = json.load(f)
-#     user_data = pickle.loads(key.decrypt(client.recv(2048)))
-#     if users[user_data["username"]]["password"] == user_data["password"]:
-#         users.pop(user_data["username"].decode())
-#         with open("users.json", "w") as fw:
-#             json.dump(users, fw, indent=4)
+    def get_files(self):
+        files = [f for f in os.listdir(f"{self.__username}\\") if os.path.isfile(os.path.join(f"{self.__username}\\", f)) and not f.endswith(".n")]
+        self.__client.send(self.__key.encrypt(pickle.dumps(files)))
 
 
-def upload_file1(self, client, key):
-    """"{username: null, file_name: null}"""
-    self.null = 5
-    try:
-        user_data = pickle.loads(key.decrypt(client.recv(2048)))
-        print(f"client {user_data['username']} is trying to send {user_data['file_name']}")
-        with open(f"{user_data['username']}\\{user_data['file_name']}", "wb") as f:
+
+class UploadFilesServer(object):
+    def __init__(self):
+        self.PORT = PORT + 1
+        self.IP = IP
+        self.upload_server = socket.socket()
+        self.upload_server.bind((self.IP, self.PORT))
+        self.upload_server.listen()
+
+    def accept_conns(self):
+        while True:
+            client, _ = self.upload_server.accept()
+            key = Fernet.generate_key()
+            client.send(key)
+            key = Fernet(key)
+            Thread(target=lambda: ClientUpload(client, key)).start()
+
+
+class ClientUpload(object):
+    def __init__(self, client, key):
+        self.__client = client
+        self.__key = key
+        self.__username = None
+        self.__password = None
+        self.file_name = None
+        self.verify_details()
+
+    def verify_details(self):
+        user_data: dict = pickle.loads(self.__key.decrypt(self.__client.recv(2048)))
+        with open("users.json") as f:
+            users = json.load(f)
+        if user_exists(user_data['username']):
+            if users[user_data["username"]]["password"] == user_data["password"]:
+                self.__client.send(self.__key.encrypt(pickle.dumps(True)))
+                self.__username = user_data['username']
+                self.__password = user_data['password']
+                self.recieve_file_data()
+            else:
+                self.__client.send(self.__key.encrypt(pickle.dumps(False)))
+        else:
+            self.__client.send(self.__key.encrypt(pickle.dumps(False)))
+
+
+    def recieve_file_data(self):
+        self.file_name = self.__key.decrypt(self.__client.recv(1024)).decode()
+        with open(f"{self.__username}\\{self.file_name}.n", "wb") as file:
             while True:
-                file_data = key.decrypt(client.recv(4096))
-                print(file_data)
-                if file_data != b"end":
-                    print(f'receiving data from {user_data["username"]}')
-                    f.write(file_data)
-                else:
+                file_data = self.__client.recv(4096)
+                if not file_data:
                     break
-    except Exception as e:
-        print(e)
-#
-#
-# def upload_file(self, client, key):
-#     user_data = pickle.loads(key.decrypt(client.recv(2048)))
-#     with open(f"{user_data['username']}\\{user_data['file_name']}", "wb") as f:
-#         f.write(key.decrypt(p(client.recv(2048))))
-#         f.write(key.decrypt(p(client.recv(2048))))
-#
-#
-# def p(j):
-#     print(j)
-#     return j
+                file.write(file_data)
+        with open(f"{self.__username}\\{self.file_name}.n", "rb") as encrypted_file:
+            with open(f"{self.__username}\\{self.file_name}", "wb") as file_to_write:
+                file_to_write.write(self.__key.decrypt(encrypted_file.read()))
+        os.remove(f"{self.__username}\\{self.file_name}.n")
 
 
-def main():
+
+
+if __name__ == '__main__':
     server = Server()
     Thread(target=server.accept_conns).start()
+    server2 = UploadFilesServer()
+    Thread(target=server2.accept_conns).start()
 
-
-if __name__ == "__main__":
-    main()
