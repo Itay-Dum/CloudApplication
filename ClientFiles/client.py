@@ -2,15 +2,14 @@ import socket
 import pickle
 from cryptography.fernet import Fernet, InvalidToken
 import os
-
 PyQt_import = True
 try:
     from PyQt5.QtWidgets import QMessageBox
 except (ImportError, QMessageBox):
     PyQt_import = False
 
-IP = "127.0.0.1"  # The server's IP, blank to use the computers' public ip.
-PORT = 6969  # General port is 6969, to upload files it's 6970 and to download files it's 6968
+IP = "127.0.0.1"  # The server's IP DON'T CHANGE
+PORT = 6969  # General port is the port hardcoded, to upload files it's the port + 1 and to download files it's port - 1
 ADDR = (IP, PORT)
 
 
@@ -25,15 +24,8 @@ class ServerNotRunning(Exception):
 #  Make the output to the console be in colors.
 class Color(object):
     def __init__(self):
-        self.PURPLE = '\033[1;35;48m'
-        self.CYAN = '\033[1;36;48m'
-        self.BOLD = '\033[1;37;48m'
-        self.BLUE = '\033[1;34;48m'
         self.GREEN = '\033[1;32;48m'
-        self.YELLOW = '\033[1;33;48m'
         self.RED = '\033[1;31;48m'
-        self.BLACK = '\033[1;30;48m'
-        self.UNDERLINE = '\033[4;37;48m'
         self.END = '\033[1;37;0m'
 
     def red(self, string):
@@ -47,7 +39,13 @@ color = Color()
 
 
 class Client(object):
-    # Client class, responsible for logging to account, signing up to a new account, list_files method,
+    # Client class, responsible for logging to account, signing up to a new account, list_files method, and more.
+
+    def __enter__(self):
+        if not PyQt_import:
+            print(color.red("You don't have PYQt5 installed, the program is usable without it, but, installing is recommended."))
+
+
     def __init__(self):
         self.__sock = socket.socket()
         try:
@@ -64,8 +62,7 @@ class Client(object):
                 msg.exec_()
                 raise ServerNotRunning()
             else:
-                raise ServerNotRunning(
-                    "The Server is not running currently, btw you don't have PyQt5 installed, use \"pip install PYQt5\" to use the GUI version.")
+                raise ServerNotRunning("The Server is not running currently, btw you don't have PyQt5 installed, use \"pip install PYQt5\" to use the GUI version.")
 
     def login(self, username, password):
         self.__sock.send(self.__key.encrypt(b"login"))
@@ -101,6 +98,15 @@ class Client(object):
         files = pickle.loads(self.__key.decrypt(self.__sock.recv(4096)))
         print(files)
         return files
+
+    def share_file(self, file_name):
+        self.__sock.send(self.__key.encrypt(b"share_file"))
+        self.__sock.send(self.__key.encrypt(file_name.encode()))
+        response: bool = pickle.loads(self.__key.decrypt(self.__sock.recv(1024)))  # If the file exist recieve true, else false
+        if not response: raise FileNotFoundError(f"{file_name} isn't in your uploaded files!")
+        share_code = self.__key.decrypt(self.__sock.recv(1024))
+        print(f"The share code of the file: {file_name}, is: {share_code.decode()}")
+        return share_code.decode()
 
 
 class UploadFiles(object):
@@ -144,5 +150,30 @@ class UploadFiles(object):
                 file.write(key.encrypt(origin.read()))
 
 
-if __name__ == '__main__':
-    pass
+class DownloadFiles(object):
+    def __init__(self, username, password, file_name):
+        self.IP = IP
+        self.PORT = PORT + 1
+        self.file_name = file_name
+        self.__sock = socket.socket()
+        self.__sock.connect((self.IP, self.PORT))
+        self.__username = username
+        self.__password = password
+        self.__key: (Fernet, None) = None
+        self.verify_details()
+
+    def verify_details(self):
+        self.__key = Fernet(self.__sock.recv(1024))
+        self.__sock.send(self.__key.encrypt(pickle.dumps({"username": self.__username, "password": self.__password})))
+        response: bool = pickle.loads(self.__key.decrypt(self.__sock.recv(1024)))
+        if response:
+            self.download()
+        else:
+            raise DetailsNotCorrect("ERROR confirming your username and password in DOWNLOADFILES")
+
+    def download(self):
+        self.__sock.send(self.__key.encrypt(self.file_name))
+        is_file_in_cloud: bool = pickle.loads(self.__key.decrypt(self.__sock.recv(1024)))
+
+
+
